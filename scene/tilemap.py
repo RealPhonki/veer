@@ -10,9 +10,15 @@
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 
+# standard
 from math import floor, ceil
+import json
 
+# third-party
 import pygame as pg
+
+# project
+from image_loader import ImageLoader
 
 from physics.box_collider import BoxCollider
 from scene.camera import Camera
@@ -20,25 +26,32 @@ from scene.camera import Camera
 class TileMap:
     """ Represents the map
     """
-    def __init__(self, screen: pg.Surface, camera: Camera) -> None:
+    def __init__(self, screen: pg.Surface, camera: Camera, json_data: str) -> None:
         # reference
         self.screen = screen
         self.camera = camera
         
-        self.TILESIZE = 16
-        self.SIZE = self.WIDTH, self.HEIGHT = [20, 10]
-        self.map = [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        ]
+        # constants
+        self.DATA = self.load_data(json_data)
+        
+        self.SPRITES = ImageLoader.load(self.DATA["image_path"])
+        
+        self.TILE_SIZE = self.DATA["tile_size"]
+        self.SIZE = self.WIDTH, self.HEIGHT = self.DATA["map_size"]
+        
+        self.LEVELS = self.DATA["levels"]
+        
+        # attributes
+        self.map = self.LEVELS["1"]
+        
+    def load_data(self, data_path: str) -> None:
+        """ Loads the player data from a json file
+
+        Args:
+            data_path (str): Represents the path to a json file
+        """
+        with open(data_path, encoding="utf-8") as f:
+            return json.load(f)
     
     def collides(self, other: BoxCollider) -> pg.Rect:
         """ Checks if a BoxCollider is colliding with a block
@@ -50,10 +63,10 @@ class TileMap:
             bool: The collision result
         """
         # parse tile index of box collider
-        tile_x = floor(other.x / self.TILESIZE)
-        tile_y = floor(other.y / self.TILESIZE)
-        tile_width = ceil((other.x + other.width) / self.TILESIZE) - tile_x
-        tile_height = ceil((other.y + other.height) / self.TILESIZE) - tile_y
+        tile_x = floor(other.x / self.TILE_SIZE)
+        tile_y = floor(other.y / self.TILE_SIZE)
+        tile_width = ceil((other.x + other.width) / self.TILE_SIZE) - tile_x
+        tile_height = ceil((other.y + other.height) / self.TILE_SIZE) - tile_y
         
         # if the collider is out of bounds then return nothing
         if tile_x + tile_width < 0 or tile_y + tile_height < 0:
@@ -73,17 +86,22 @@ class TileMap:
         
         # debug
         pg.draw.rect(self.screen, (255, 0, 0), [
-            tile_x*self.TILESIZE - self.camera.x,
-            tile_y*self.TILESIZE - self.camera.y,
-            tile_width*self.TILESIZE,
-            tile_height*self.TILESIZE
+            tile_x*self.TILE_SIZE - self.camera.x,
+            tile_y*self.TILE_SIZE - self.camera.y,
+            tile_width*self.TILE_SIZE,
+            tile_height*self.TILE_SIZE
         ], 2)
         
         # return collided tiles
         for y in range(tile_y, tile_y + tile_height):
             for x in range(tile_x, tile_x + tile_width):
-                if self.map[y][x] == 1:
-                    return pg.Rect(x*self.TILESIZE, y*self.TILESIZE, self.TILESIZE, self.TILESIZE)
+                if self.map[y][x] != "0":
+                    return pg.Rect(
+                        x * self.TILE_SIZE,
+                        y * self.TILE_SIZE,
+                        self.TILE_SIZE,
+                        self.TILE_SIZE
+                    )
         return None
     
     def render(self) -> None:
@@ -91,11 +109,9 @@ class TileMap:
         """
         for y, row in enumerate(self.map):
             for x, tile in enumerate(row):
-                if tile == 0:
+                if tile == "0":
                     continue
-                pg.draw.rect(self.screen, (155, 155, 155), [
-                    x * self.TILESIZE - self.camera.x,
-                    y * self.TILESIZE - self.camera.y,
-                    self.TILESIZE,
-                    self.TILESIZE,
+                self.screen.blit(self.SPRITES[tile], [
+                    x * self.TILE_SIZE - self.camera.x,
+                    y * self.TILE_SIZE - self.camera.y
                 ])

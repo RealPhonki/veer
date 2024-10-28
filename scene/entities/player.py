@@ -10,12 +10,15 @@
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 
+# standard
 import json
 
+# third party
 import pygame as pg
 
+# project
 from input_manager import InputManager
-#from image_loader import ImageLoader
+from image_loader import ImageLoader
 
 from physics.box_collider import BoxCollider
 from scene.camera import Camera
@@ -26,22 +29,31 @@ class Player(BoxCollider):
     Args:
         pg (_type_): _description_
     """
-    def __init__(self, screen: pg.Surface, camera: Camera, input_manager: InputManager, data_path: str) -> None:
+    def __init__(
+        self,
+        screen: pg.Surface,
+        camera: Camera, 
+        input_manager: InputManager,
+        json_data: str
+    ) -> None:
         # reference
         self.screen = screen
         self.camera = camera
         self.input_manager = input_manager
-        self.data_path = data_path
         
         # constants
-        self.DATA = self.load_data(data_path)
+        self.DATA = self.load_data(json_data)
+        
+        self.SPRITES = ImageLoader.load(self.DATA["image_path"])
+        
         self.MOVE_SPEED = self.DATA["move_speed"]
         self.JUMP_FORCE = self.DATA["jump_force"]
         
+        
         # attributes
+        self.current_sprite = self.SPRITES["idle"]
         
         # initalization
-        self.load_data(data_path)
         BoxCollider.__init__(self, *self.DATA["hitbox_size"], 14, 14)
         
     def load_data(self, data_path: str) -> None:
@@ -74,9 +86,4 @@ class Player(BoxCollider):
         Args:
             screen (pg.surface): The surface to render the player to
         """
-        pg.draw.rect(self.screen, (255, 255, 255), [
-            self.x - self.camera.x,
-            self.y - self.camera.y,
-            self.width,
-            self.height,
-        ])
+        self.screen.blit(self.current_sprite, (self.x - self.camera.x, self.y - self.camera.y))

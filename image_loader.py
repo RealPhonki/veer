@@ -10,8 +10,10 @@
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 
+# standard
 import os
 
+# third-party
 import pygame as pg
 
 class ImageLoader:

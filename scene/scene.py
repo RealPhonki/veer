@@ -10,8 +10,10 @@
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 
+# third-party
 import pygame as pg
 
+# project
 from input_manager import InputManager
 from scene.tilemap import TileMap
 from scene.camera import Camera
@@ -25,11 +27,11 @@ class Scene:
         self.screen = screen
         
         # game
-        self.camera = Camera((0, 0), self.screen.get_size())
-        self.tile_map = TileMap(self.screen, self.camera)
+        self.camera = Camera((0, 0), self.screen.get_size(), track_speed=0.5)
+        self.tile_map = TileMap(self.screen, self.camera, json_data="data/tilemap.json")
         
         # entities
-        self.player = Player(self.screen, self.camera, input_manager, "data/player1.json")
+        self.player = Player(self.screen, self.camera, input_manager, json_data="data/player1.json")
     
     def update(self, delta_time: float) -> None:
         """ Updates all actors in the scene
@@ -38,7 +40,7 @@ class Scene:
             input_manager (InputManager): The inputs
             delta_time (float): The delta time
         """
-        self.camera.track(self.player)
+        self.camera.track(delta_time, self.player)
         self.player.update(delta_time, [self.tile_map])
     
     def render(self) -> None:

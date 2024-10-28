@@ -9,8 +9,10 @@
 # pylint: disable=unused-wildcard-import
 # pylint: disable=import-error
 
+# third-party
 import pygame as pg
 
+# project
 from input_manager import InputManager
 from scene.scene import Scene
 
@@ -19,7 +21,7 @@ class App:
     def __init__(self) -> None:
         # constants
         self.FPS = 80
-        self.B_RES = self.B_WIDTH, self.B_HEIGHT = (400, 320)
+        self.B_RES = self.B_WIDTH, self.B_HEIGHT = (300, 240)
         self.RES = self.WIDTH, self.HEIGHT = (1000, 800)
         
         # attributes

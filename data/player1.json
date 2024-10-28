@@ -1,6 +1,6 @@
 {
-    "hitbox_size": [14, 14],
     "image_path": "assets/player1",
+    "hitbox_size": [14, 14],
     "move_speed": 32,
     "jump_force": 4
 }
