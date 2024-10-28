@@ -19,7 +19,7 @@ class App:
     def __init__(self) -> None:
         # constants
         self.FPS = 80
-        self.B_RES = self.B_WIDTH, self.B_HEIGHT = (300, 240)
+        self.B_RES = self.B_WIDTH, self.B_HEIGHT = (400, 320)
         self.RES = self.WIDTH, self.HEIGHT = (1000, 800)
         
         # attributes
@@ -28,7 +28,7 @@ class App:
         self.clock = pg.time.Clock()
         
         self.input_manager = InputManager()
-        self.scene = Scene(self.buffer)
+        self.scene = Scene(self.buffer, self.input_manager)
         
         self.delta_time = 0
     
@@ -50,7 +50,7 @@ class App:
         
         self.delta_time = self.clock.get_fps() / 1000
         
-        self.scene.update(self.input_manager, self.delta_time)
+        self.scene.update(self.delta_time)
     
     def render(self) -> None:
         """ Renders the program """
@@ -62,7 +62,7 @@ class App:
         self.screen.blit(pg.transform.scale(self.buffer, self.RES))
         
         self.clock.tick(self.FPS)
-        pg.display.set_caption(str(self.clock.get_fps()))
+        pg.display.set_caption("Veer")
         pg.display.update()
     
     def run(self) -> None:

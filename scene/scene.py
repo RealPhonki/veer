@@ -19,17 +19,18 @@ from scene.entities.player import Player
 class Scene:
     """ Handles all actors in the game
     """
-    def __init__(self, screen: pg.Surface) -> None:
+    def __init__(self, screen: pg.Surface, input_manager: InputManager) -> None:
         # reference
         self.screen = screen
         
-        # attributes
+        # game
         self.camera = Camera((0, 0), self.screen.get_size())
         self.tile_map = TileMap(self.screen, self.camera)
-        self.player = Player(self.screen, self.camera)
-        self.player.set_gravity(pg.Vector2(0, 0))
+        
+        # entities
+        self.player = Player(self.screen, self.camera, input_manager)
     
-    def update(self, input_manager: InputManager, delta_time: float) -> None:
+    def update(self, delta_time: float) -> None:
         """ Updates all actors in the scene
 
         Args:
@@ -37,7 +38,7 @@ class Scene:
             delta_time (float): The delta time
         """
         self.camera.track(self.player)
-        self.player.update(input_manager, delta_time, [self.tile_map])
+        self.player.update(delta_time, [self.tile_map])
     
     def render(self) -> None:
         """ Renders all actors in the scene to the screen

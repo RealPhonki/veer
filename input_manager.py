@@ -38,6 +38,7 @@ class InputManager(dict):
             if key in self.__listeners:
                 self.__listeners[key].append(listener)
             else:
+                super().__setitem__(key, False)
                 self.__listeners[key] = [listener]
     
     def _call(self, key: key_code, value: key_state) -> None:

@@ -8,12 +8,11 @@
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
 # pylint: disable=import-error
-# pylint: disable=arguments-differ
 
 import pygame as pg
 
 from input_manager import InputManager
-from box_collider import BoxCollider
+from physics.box_collider import BoxCollider
 from scene.camera import Camera
 
 class Player(BoxCollider):
@@ -22,38 +21,47 @@ class Player(BoxCollider):
     Args:
         pg (_type_): _description_
     """
-    def __init__(self, screen: pg.Surface, camera: Camera) -> None:
+    def __init__(self, screen: pg.Surface, camera: Camera, input_manager: InputManager) -> None:
         # reference
         self.screen = screen
         self.camera = camera
+        self.input_manager = input_manager
         
         # constants
-        self.MOVE_SPEED = 16 # pixels per second
+        self.MOVE_SPEED = 32
+        self.JUMP_FORCE = 3
         
+        # attributes
+        self.double_jump_ready = False
+        
+        # initalization
         BoxCollider.__init__(self, 16, 16, 16, 16)
+        
+        self.input_manager.bind(self.jump, pg.K_w)
     
-    def _handle_inputs(self, input_manager: InputManager, delta_time: float) -> None:
-        if input_manager[pg.K_w]:
-            self._velocity.y = -self.MOVE_SPEED * delta_time
-        elif input_manager[pg.K_s]:
-            self._velocity.y = self.MOVE_SPEED * delta_time
-        else:
-            self._velocity.y = 0
-        if input_manager[pg.K_a]:
-            self._velocity.x = -self.MOVE_SPEED * delta_time
-        elif input_manager[pg.K_d]:
-            self._velocity.x = self.MOVE_SPEED * delta_time
-        else:
-            self._velocity.x = 0
+    def jump(self, _: pg.key, key_state: bool) -> None:
+        """ Makes the player jump """
+        if not key_state:
+            return
+        if self.collisions.bottom:
+            self._velocity.y = -self.JUMP_FORCE
+        elif self.double_jump_ready:
+            self._velocity.y = -self.JUMP_FORCE
+            self.double_jump_ready = False
+            self.friction = 0.7
     
-    def update(
-        self,
-        input_manager: InputManager,
-        delta_time: float,
-        others: list[BoxCollider]
-    ) -> None:
-        self._handle_inputs(input_manager, delta_time)
-        BoxCollider.update(self, others)
+    def _handle_inputs(self, delta_time: float) -> None:
+        if self.input_manager[pg.K_a]:
+            self._velocity.x -= self.MOVE_SPEED * delta_time * self.friction
+        if self.input_manager[pg.K_d]:
+            self._velocity.x += self.MOVE_SPEED * delta_time * self.friction
+    
+    def update(self, delta_time: float, others: list[BoxCollider]) -> None:
+        self._handle_inputs(delta_time)
+        BoxCollider.update(self, delta_time, others)
+        
+        if self.collisions.bottom:
+            self.double_jump_ready = True
     
     def render(self) -> None:
         """ Renders the player to a surface
