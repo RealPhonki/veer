@@ -53,7 +53,7 @@ class TileMap:
         with open(data_path, encoding="utf-8") as f:
             return json.load(f)
     
-    def collides(self, other: BoxCollider) -> pg.Rect:
+    def collides(self, other: BoxCollider, ignore: list) -> pg.Rect:
         """ Checks if a BoxCollider is colliding with a block
 
         Args:
@@ -84,14 +84,6 @@ class TileMap:
         tile_width = min(tile_width, self.WIDTH - tile_x)
         tile_height = min(tile_height, self.HEIGHT - tile_y)
         
-        # debug
-        pg.draw.rect(self.screen, (255, 0, 0), [
-            tile_x*self.TILE_SIZE - self.camera.x,
-            tile_y*self.TILE_SIZE - self.camera.y,
-            tile_width*self.TILE_SIZE,
-            tile_height*self.TILE_SIZE
-        ], 2)
-        
         # return collided tiles
         for y in range(tile_y, tile_y + tile_height):
             for x in range(tile_x, tile_x + tile_width):
@@ -111,7 +103,22 @@ class TileMap:
             for x, tile in enumerate(row):
                 if tile == "0":
                     continue
-                self.screen.blit(self.SPRITES[tile], [
-                    x * self.TILE_SIZE - self.camera.x,
-                    y * self.TILE_SIZE - self.camera.y
-                ])
+                elif tile == "b":
+                    pg.draw.rect(self.screen, (0, 0, 255), [
+                        x * self.TILE_SIZE - self.camera.x,
+                        y * self.TILE_SIZE - self.camera.y,
+                        self.TILE_SIZE,
+                        self.TILE_SIZE
+                    ])
+                elif tile == "p":
+                    pg.draw.rect(self.screen, (255, 0, 0), [
+                        x * self.TILE_SIZE - self.camera.x,
+                        y * self.TILE_SIZE - self.camera.y,
+                        self.TILE_SIZE,
+                        self.TILE_SIZE
+                    ])
+                else:
+                    self.screen.blit(self.SPRITES[tile], [
+                        x * self.TILE_SIZE - self.camera.x,
+                        y * self.TILE_SIZE - self.camera.y
+                    ])

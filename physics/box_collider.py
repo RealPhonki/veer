@@ -18,8 +18,9 @@ from physics.colllision_manager import CollisionManager
 class BoxCollider():
     """ Handles collision of a box-shaped entity
     """
-    def __init__(self, x: float, y: float, width: int, height: int) -> None:
+    def __init__(self, ignore_collision: list[str], x: float, y: float, width: int, height: int) -> None:
         # settings
+        self._IGNORE_COLLISION = ignore_collision
         self._gravity = pg.Vector2(0, 2)
         self._air_friction = 0.03
         self._ground_friction = 0.5
@@ -121,7 +122,7 @@ class BoxCollider():
         
         self.x += self._velocity.x
         for other in others:
-            collision = other.collides(self)
+            collision = other.collides(self, self._IGNORE_COLLISION)
             if not collision:
                 continue
             
@@ -136,7 +137,7 @@ class BoxCollider():
         
         self.y += self._velocity.y
         for other in others:
-            collision = other.collides(self)
+            collision = other.collides(self, self._IGNORE_COLLISION)
             if not collision:
                 continue
             

@@ -9,12 +9,15 @@
 # pylint: disable=unused-wildcard-import
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
+# pylint: disable=import-self
 
 # third-party
 import pygame as pg
 
 # project
 from input_manager import InputManager
+from image_loader import ImageLoader
+
 from scene.tilemap import TileMap
 from scene.camera import Camera
 from scene.entities.player import Player
@@ -45,6 +48,8 @@ class Scene:
             json_data = "data/player2.json",
             spawn_position = (16, 0)
         )
+        
+        self.SPRITES = ImageLoader.load("assets/scene")
     
     def update(self, delta_time: float) -> None:
         """ Updates all actors in the scene
@@ -68,6 +73,8 @@ class Scene:
     def render(self) -> None:
         """ Renders all actors in the scene to the screen
         """
+        self.screen.blit(pg.transform.scale(self.SPRITES["background"], self.screen.get_size()))
+        
         self.tile_map.render()
         self.player1.render()
         self.player2.render()

@@ -57,7 +57,7 @@ class Player(BoxCollider):
         self.current_sprite = self.SPRITES["idle"]
         
         # initalization
-        BoxCollider.__init__(self, *spawn_position, *self.DATA["hitbox_size"])
+        BoxCollider.__init__(self, self.DATA["ignore_collision"], *spawn_position, *self.DATA["hitbox_size"])
         
     def load_data(self, data_path: str) -> None:
         """ Loads the player data from a json file

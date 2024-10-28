@@ -3,6 +3,7 @@
     "hitbox_size": [14, 14],
     "move_speed": 32,
     "jump_force": 4,
+    "ignore_collision": ["b"],
     "key_binds": {
         "jump": "w",
         "left": "a",
