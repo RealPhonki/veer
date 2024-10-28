@@ -14,6 +14,7 @@
 import json
 
 # third party
+from pygame.key import key_code
 import pygame as pg
 
 # project
@@ -34,7 +35,8 @@ class Player(BoxCollider):
         screen: pg.Surface,
         camera: Camera, 
         input_manager: InputManager,
-        json_data: str
+        json_data: str,
+        spawn_position: pg.Vector2
     ) -> None:
         # reference
         self.screen = screen
@@ -46,15 +48,16 @@ class Player(BoxCollider):
         
         self.SPRITES = ImageLoader.load(self.DATA["image_path"])
         
+        self.KEYBINDS = {action: key_code(key) for (action, key) in self.DATA["key_binds"].items()}
+        
         self.MOVE_SPEED = self.DATA["move_speed"]
         self.JUMP_FORCE = self.DATA["jump_force"]
-        
         
         # attributes
         self.current_sprite = self.SPRITES["idle"]
         
         # initalization
-        BoxCollider.__init__(self, *self.DATA["hitbox_size"], 14, 14)
+        BoxCollider.__init__(self, *spawn_position, *self.DATA["hitbox_size"])
         
     def load_data(self, data_path: str) -> None:
         """ Loads the player data from a json file
@@ -66,11 +69,13 @@ class Player(BoxCollider):
             return json.load(f)
     
     def _handle_inputs(self, delta_time: float) -> None:
-        if self.input_manager[pg.K_w] and self.collisions.bottom:
+        if self.input_manager[self.KEYBINDS["jump"]] and self.collisions.bottom:
             self._velocity.y = -self.JUMP_FORCE
-        if self.input_manager[pg.K_a]:
+            
+        if self.input_manager[self.KEYBINDS["left"]]:
             self._velocity.x -= self.MOVE_SPEED * delta_time * self.friction
-        if self.input_manager[pg.K_d]:
+            
+        if self.input_manager[self.KEYBINDS["right"]]:
             self._velocity.x += self.MOVE_SPEED * delta_time * self.friction
     
     def update(self, delta_time: float, others: list[BoxCollider]) -> None:
