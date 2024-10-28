@@ -8,6 +8,7 @@
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
 # pylint: disable=import-error
+# pylint: disable=no-name-in-module
 
 import pygame as pg
 
@@ -28,7 +29,7 @@ class Scene:
         self.tile_map = TileMap(self.screen, self.camera)
         
         # entities
-        self.player = Player(self.screen, self.camera, input_manager)
+        self.player = Player(self.screen, self.camera, input_manager, "data/player1.json")
     
     def update(self, delta_time: float) -> None:
         """ Updates all actors in the scene

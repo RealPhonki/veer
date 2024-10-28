@@ -8,6 +8,7 @@
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
 # pylint: disable=import-error
+# pylint: disable=no-name-in-module
 
 from math import floor, ceil
 
